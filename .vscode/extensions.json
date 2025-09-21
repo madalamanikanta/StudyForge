@@ -1,0 +1,54 @@
+{
+  "recommendations": [
+    // General
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "mikestead.dotenv",
+    "editorconfig.editorconfig",
+    "mrmlnc.vscode-scss",
+    "stylelint.vscode-stylelint",
+    
+    // React & TypeScript
+    "ms-vscode.vscode-typescript-next",
+    "infeng.vscode-react-typescript",
+    "dsznajder.es7-react-js-snippets",
+    "bradlc.vscode-tailwindcss",
+    "pflannery.vscode-versionlens",
+    "msjsdiag.vscode-react-native",
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    
+    // Git
+    "eamodio.gitlens",
+    "codezombiech.gitignore",
+    "donjayamanne.githistory",
+    "mhutchie.git-graph",
+    
+    // Productivity
+    "wix.vscode-import-cost",
+    "gruntfuggly.todo-tree",
+    "usernamehw.errorlens",
+    "naumovs.color-highlight",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag",
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    "visualstudioexptteam.vscodeintellicode",
+    
+    // Testing
+    "firsttris.vscode-jest-runner",
+    "orta.vscode-jest",
+    "hbenl.vscode-test-explorer",
+    "kavod-io.vscode-jest-test-adapter",
+    
+    // Debugging
+    "ms-vscode.js-debug",
+    "ms-vscode.js-debug-companion",
+    "ms-vscode.test-adapter-converter",
+    
+    // Documentation
+    "tombonnike.vscode-status-bar-format-toggle",
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint"
+  ]
+}

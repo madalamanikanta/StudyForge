@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyForge - Offline Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .offline-container {
+            max-width: 500px;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .features h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li::before {
+            content: "✓";
+            margin-right: 10px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status.offline {
+            border-left: 4px solid #ff9800;
+        }
+
+        .status.online {
+            border-left: 4px solid #4CAF50;
+        }
+
+        @media (max-width: 600px) {
+            .offline-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📚</div>
+        <h1>You're Offline</h1>
+        <p>Don't worry! StudyForge is designed to work offline. You can continue studying with cached content and sync your progress when you're back online.</p>
+
+        <div class="features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>View your study plans</li>
+                <li>Review completed lessons</li>
+                <li>Access cached resources</li>
+                <li>Track basic progress</li>
+                <li>Take notes (will sync later)</li>
+            </ul>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="checkOnlineStatus()">
+                Check Connection
+            </button>
+            <button class="btn btn-secondary" onclick="goToCachedContent()">
+                View Cached Content
+            </button>
+        </div>
+
+        <div id="status" class="status offline">
+            🔄 Checking connection status...
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function checkOnlineStatus() {
+            const statusElement = document.getElementById('status');
+
+            if (navigator.onLine) {
+                statusElement.className = 'status online';
+                statusElement.innerHTML = '✅ You are back online! <a href="/" style="color: #4CAF50;">Reload page</a>';
+
+                // Attempt to reload after a short delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusElement.className = 'status offline';
+                statusElement.textContent = '❌ Still offline. Please check your internet connection.';
+            }
+        }
+
+        // Navigate to cached content
+        function goToCachedContent() {
+            window.location.href = '/dashboard';
+        }
+
+        // Auto-check connection on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkOnlineStatus();
+
+            // Listen for online/offline events
+            window.addEventListener('online', checkOnlineStatus);
+            window.addEventListener('offline', function() {
+                const statusElement = document.getElementById('status');
+                statusElement.className = 'status offline';
+                statusElement.textContent = '❌ Connection lost. You are now offline.';
+            });
+        });
+
+        // Register service worker if not already registered
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+{
+  // Editor
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "editor.rulers": [80, 100],
+  "editor.wordWrap": "on",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.minimap.enabled": true,
+  "editor.renderWhitespace": "selection",
+  "editor.suggestSelection": "first",
+  "editor.fontLigatures": true,
+  "editor.fontFamily": "'Fira Code', 'Droid Sans Mono', 'monospace', 'Droid Sans Fallback'",
+  
+  // Files
+  "files.autoSave": "onFocusChange",
+  "files.autoSaveDelay": 1000,
+  "files.associations": {
+    "*.css": "postcss"
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  
+  // TypeScript
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.log": "verbose",
+  "typescript.tsserver.trace.server": "verbose",
+  "typescript.tsserver.experimental.suggest.completeJSDocs": true,
+  "typescript.tsserver.experimental.suggest.autoImports": true,
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.preferences.renameShorthandProperties": true,
+  "typescript.preferences.useAliasesForRenames": true,
+  "typescript.suggest.autoImports": true,
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
+  "typescript.suggest.includeCompletionsForImportStatements": true,
+  "typescript.suggest.includeCompletionsForModuleExports": true,
+  "typescript.suggest.includeCompletionsWithSnippetText": true,
+  "typescript.suggest.jsdoc.generateReturns": true,
+  "typescript.suggest.names": true,
+  "typescript.suggest.paths": true,
+  
+  // JavaScript
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.quoteStyle": "single",
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "javascript.preferences.includePackageJsonAutoImports": "on",
+  "javascript.preferences.renameShorthandProperties": true,
+  "javascript.preferences.useAliasesForRenames": true,
+  "javascript.suggest.autoImports": true,
+  "javascript.suggest.completeFunctionCalls": true,
+  "javascript.suggest.includeAutomaticOptionalChainCompletions": true,
+  "javascript.suggest.includeCompletionsForImportStatements": true,
+  "javascript.suggest.includeCompletionsForModuleExports": true,
+  "javascript.suggest.includeCompletionsWithSnippetText": true,
+  "javascript.suggest.jsdoc.generateReturns": true,
+  "javascript.suggest.names": true,
+  "javascript.suggest.paths": true,
+  
+  // ESLint
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "eslint.lintTask.enable": true,
+  "eslint.format.enable": true,
+  "eslint.trace.server": "messages",
+  
+  // Prettier
+  "prettier.singleQuote": true,
+  "prettier.semi": true,
+  "prettier.tabWidth": 2,
+  "prettier.trailingComma": "es5",
+  "prettier.printWidth": 100,
+  "prettier.bracketSpacing": true,
+  "prettier.arrowParens": "always",
+  "prettier.endOfLine": "auto",
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": false,
+  
+  // Path Intellisense
+  "path-intellisense.extensionOnImport": true,
+  "path-intellisense.autoSlashAfterDirectory": true,
+  
+  // Tailwind CSS
+  "tailwindCSS.includeLanguages": {
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "html": "HTML"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.validate": true,
+  
+  // Formatting
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  
+  // Terminal
+  "terminal.integrated.fontFamily": "'Fira Code', 'Cascadia Code', 'Consolas', 'Courier New', monospace",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.scrollback": 10000,
+  
+  // Workbench
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "welcomePage",
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.highlightModifiedTabs": true,
+  "workbench.editor.wrapTabs": true,
+  "workbench.editor.tabSizing": "shrink",
+  "workbench.editor.scrollToSwitchTabs": true,
+  "workbench.list.smoothScrolling": true,
+  "workbench.tree.indent": 16,
+  
+  // Git
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.ignoreMissingGitWarning": true,
+  "git.openRepositoryInParentFolders": "always",
+  
+  // Debug
+  "debug.javascript.autoAttachFilter": "smart",
+  "debug.javascript.terminalOptionsExecutable": {
+    "args": ["--inspect"]
+  },
+  
+  // Extensions
+  "extensions.ignoreRecommendations": false,
+  "extensions.autoUpdate": true,
+  "extensions.autoCheckUpdates": true,
+  
+  // Other
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/.cache": true,
+    "**/.git": true
+  },
+  "search.useIgnoreFiles": true,
+  "search.useGlobalIgnoreFiles": true,
+  "search.followSymlinks": false,
+  "search.smartCase": true,
+  
+  // Project-specific
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

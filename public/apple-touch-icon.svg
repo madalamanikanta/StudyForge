@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <defs>
+    <linearGradient id="brainGradientLarge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="30" fill="url(#brainGradientLarge)"/>
+  <path d="M45 70c0-12 10-22 22-22s22 10 22 22c0 6-5 11-11 11h-22c-6 0-11-5-11-11z" fill="white" opacity="0.9"/>
+  <path d="M115 70c0-12 10-22 22-22s22 10 22 22c0 6-5 11-11 11h-22c-6 0-11-5-11-11z" fill="white" opacity="0.9"/>
+  <path d="M70 90c0-6 5-11 11-11h22c6 0 11 5 11 11v22c0 6-5 11-11 11h-22c-6 0-11-5-11-11v-22z" fill="white" opacity="0.7"/>
+  <circle cx="90" cy="115" r="11" fill="white" opacity="0.9"/>
+  <text x="90" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" opacity="0.8">StudyForge</text>
+</svg>
