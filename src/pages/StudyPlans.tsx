@@ -16,13 +16,16 @@ import { useToast } from '@/hooks/use-toast';
 interface StudyPlan {
   id: string;
   title: string;
-  description: string;
-  goal: string;
-  difficulty_level: string;
-  hours_per_week: number;
-  timeline_days: number;
-  status: string;
+  description: string | null;
+  goal: string | null;
+  difficulty_level: string | null;
+  hours_per_week: number | null;
+  timeline_days: number | null;
+  status: string | null;
+  ai_generated: boolean | null;
   created_at: string;
+  updated_at: string;
+  user_id: string;
 }
 
 const StudyPlans = () => {
@@ -280,11 +283,11 @@ const StudyPlans = () => {
                     <CardDescription className="mt-1">{plan.goal}</CardDescription>
                   </div>
                   <div className="flex space-x-1">
-                    <Badge className={`${getDifficultyColor(plan.difficulty_level)} text-white text-xs`}>
-                      {plan.difficulty_level}
+                    <Badge className={`${getDifficultyColor(plan.difficulty_level || 'intermediate')} text-white text-xs`}>
+                      {plan.difficulty_level || 'intermediate'}
                     </Badge>
-                    <Badge className={`${getStatusColor(plan.status)} text-white text-xs`}>
-                      {plan.status}
+                    <Badge className={`${getStatusColor(plan.status || 'active')} text-white text-xs`}>
+                      {plan.status || 'active'}
                     </Badge>
                   </div>
                 </div>

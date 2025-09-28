@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import {
   User,
@@ -31,20 +33,6 @@ interface Profile {
   };
 }
 
-const PLATFORMS = [
-  { id: 'leetcode', name: 'LeetCode', icon: '💻' },
-  { id: 'hackerrank', name: 'HackerRank', icon: '🧑‍💻' },
-  { id: 'codeforces', name: 'Codeforces', icon: '🚀' },
-  { id: 'codechef', name: 'CodeChef', icon: '🌶️' },
-  { id: 'atcoder', name: 'AtCoder', icon: '🇯🇵' },
-] as const;
-
-type Platform = {
-  readonly id: string;
-  readonly name: string;
-  readonly icon: string;
-};
-
 const Settings = () => {
   const [profile, setProfile] = useState<Profile>({
     display_name: '',
@@ -58,9 +46,6 @@ const Settings = () => {
     }
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [usernames, setUsernames] = useState<Record<string, string>>({});
-  const [syncLoading, setSyncLoading] = useState<Record<string, boolean>>({});
   const [notifications, setNotifications] = useState({
     study_reminders: true,
     progress_updates: true,
@@ -68,136 +53,75 @@ const Settings = () => {
     email_notifications: false
   });
 
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
+  const [syncLoading, setSyncLoading] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Dialog states
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [show2FADialog, setShow2FADialog] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
-  const fetchIntegrations = useCallback(async () => {
-    if (!user) return;
-
-    // Check if we're in demo mode
-    const isDemoMode = localStorage.getItem('studyforge-demo-mode') === 'true';
-
-    if (isDemoMode) {
-      // Provide demo integration data
-      setUsernames({
-        leetcode: 'demo_user',
-        hackerrank: '',
-        codeforces: '',
-        codechef: '',
-        atcoder: ''
-      });
-      return;
-    }
-
-    try {
-      const { data } = await supabase
-        .from('imports')
-        .select('platform, username')
-        .eq('user_id', user.id);
-
-      if (data) {
-        const userNamesData = data.reduce<Record<string, string>>((acc, item) => {
-          acc[item.platform] = item.username;
-          return acc;
-        }, {});
-        setUsernames(userNamesData);
-      }
-    } catch (error) {
-      console.error('Error fetching integrations:', error);
-      throw error; // Re-throw to be caught by the caller
-    }
-  }, [user]);
-
-  const fetchProfile = useCallback(async () => {
-    if (!user) return;
-
-    // Check if we're in demo mode
-    const isDemoMode = localStorage.getItem('studyforge-demo-mode') === 'true';
-
-    if (isDemoMode) {
-      // Provide demo data
-      setProfile({
-        display_name: 'Demo User',
-        email: 'demo@studyforge.com',
-        timezone: 'UTC',
-        study_preferences: {
-          daily_goal_hours: 2,
-          preferred_study_time: '18:00',
-          difficulty_preference: 'medium',
-          reminder_frequency: 'daily'
-        }
-      });
-      return;
-    }
-
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (data) {
-        // Ensure study_preferences has the correct shape
-        const studyPrefs = typeof data.study_preferences === 'object' && data.study_preferences !== null
-          ? data.study_preferences as Profile['study_preferences']
-          : {
-              daily_goal_hours: 2,
-              preferred_study_time: '18:00',
-              difficulty_preference: 'medium',
-              reminder_frequency: 'daily'
-            };
-
-        setProfile({
-          display_name: data.display_name || '',
-          email: data.email || user.email || '',
-          timezone: data.timezone || 'UTC',
-          study_preferences: studyPrefs
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      throw error; // Re-throw to be caught by the caller
-    }
-  }, [user]);
-
-  const fetchData = useCallback(async () => {
-    if (!user) return;
-    try {
-      await Promise.all([fetchProfile(), fetchIntegrations()]);
-    } catch (error) {
-      console.error('Error in fetchData:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load data. Please refresh the page.',
-        variant: 'destructive'
-      });
-    }
-  }, [user, fetchProfile, fetchIntegrations, toast]);
+  const PLATFORMS = [
+    { id: 'leetcode', name: 'LeetCode', icon: '💻' },
+    { id: 'hackerrank', name: 'HackerRank', icon: '🧑‍💻' },
+    { id: 'codeforces', name: 'Codeforces', icon: '🚀' },
+    { id: 'codechef', name: 'CodeChef', icon: '🌶️' },
+    { id: 'atcoder', name: 'AtCoder', icon: '🇯🇵' },
+  ];
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (user) {
+      // Load user profile data
+      const loadProfile = async () => {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-  const handleSave = async (e: React.FormEvent): Promise<void> => {
+          if (data) {
+            setProfile({
+              display_name: data.display_name || '',
+              email: data.email || user.email || '',
+              timezone: data.timezone || 'UTC',
+              study_preferences: data.study_preferences || profile.study_preferences
+            });
+          }
+
+          // Load integration data
+          const { data: integrationData } = await supabase
+            .from('imports')
+            .select('platform, username')
+            .eq('user_id', user.id);
+
+          if (integrationData) {
+            const userNamesData = integrationData.reduce<Record<string, string>>((acc, item) => {
+              acc[item.platform] = item.username;
+              return acc;
+            }, {});
+            setUsernames(userNamesData);
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        }
+      };
+
+      loadProfile();
+    }
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-
-    // Check if we're in demo mode
-    const isDemoMode = localStorage.getItem('studyforge-demo-mode') === 'true';
-
-    if (isDemoMode) {
-      // Simulate save operation in demo mode
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        toast({
-          title: 'Demo Mode',
-          description: 'Settings saved locally (demo mode). Changes won\'t persist.',
-        });
-      }, 1000);
-      return;
-    }
 
     setIsLoading(true);
     try {
@@ -227,10 +151,6 @@ const Settings = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleUsernameChange = (platform: string, value: string) => {
-    setUsernames(prev => ({ ...prev, [platform]: value }));
   };
 
   const handleSync = async (platform: string) => {
@@ -296,7 +216,7 @@ const Settings = () => {
         });
 
         // Refresh the integrations list
-        await fetchIntegrations();
+        await loadProfile();
       } else {
         toast({
           title: `Successfully connected to ${platform}!`,
@@ -336,17 +256,129 @@ const Settings = () => {
     }
   };
 
-  const handleSignOut = () => {
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all password fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "New passwords don't match.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check if we're in demo mode
     const isDemoMode = localStorage.getItem('studyforge-demo-mode') === 'true';
 
     if (isDemoMode) {
-      // In demo mode, just clear the demo flag and redirect to home
-      localStorage.removeItem('studyforge-demo-mode');
-      window.location.href = '/';
+      setPasswordLoading(true);
+      setTimeout(() => {
+        toast({
+          title: "Demo Mode",
+          description: "Password changed successfully (demo mode).",
+        });
+        setShowPasswordDialog(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordLoading(false);
+      }, 1500);
       return;
     }
 
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully.",
+      });
+      setShowPasswordDialog(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: unknown) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password.",
+        variant: "destructive"
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleToggle2FA = async () => {
+    // Check if we're in demo mode
+    const isDemoMode = localStorage.getItem('studyforge-demo-mode') === 'true';
+
+    if (isDemoMode) {
+      toast({
+        title: "Demo Mode",
+        description: "2FA toggled successfully (demo mode).",
+      });
+      setShow2FADialog(false);
+      return;
+    }
+
+    // In a real implementation, this would integrate with an authenticator service
+    toast({
+      title: "Feature Coming Soon",
+      description: "Two-factor authentication will be available in a future update.",
+    });
+    setShow2FADialog(false);
+  };
+
+  const handleDownloadData = async () => {
+    // Check if we're in demo mode
+    const isDemoMode = localStorage.getItem('studyforge-demo-mode') === 'true';
+
+    if (isDemoMode) {
+      toast({
+        title: "Demo Mode",
+        description: "Data export initiated (demo mode).",
+      });
+      return;
+    }
+
+    try {
+      // In a real implementation, this would generate and download user data
+      toast({
+        title: "Feature Coming Soon",
+        description: "Data export will be available in a future update.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to initiate data export.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSignOut = () => {
     signOut().catch(error => {
       console.error('Error signing out:', error);
       toast({
@@ -383,6 +415,23 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Current Email Display - Prominent */}
+              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <Label className="text-sm font-medium text-blue-800 dark:text-blue-200">Current Account Email</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold text-blue-900 dark:text-blue-100">{profile.email}</span>
+                  <span className="text-xs text-blue-600 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">
+                    Primary
+                  </span>
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                  This is your primary account email address
+                </p>
+              </div>
+
               <form onSubmit={handleSave} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -394,7 +443,7 @@ const Settings = () => {
                       placeholder="Your display name"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -410,8 +459,8 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
-                    <Select 
-                      value={profile.timezone} 
+                    <Select
+                      value={profile.timezone}
                       onValueChange={(value) => setProfile({ ...profile, timezone: value })}
                     >
                       <SelectTrigger>
@@ -453,7 +502,7 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="study_time">Preferred Study Time</Label>
-                    <Select 
+                    <Select
                       value={profile.study_preferences.preferred_study_time}
                       onValueChange={(value) => setProfile({
                         ...profile,
@@ -477,7 +526,7 @@ const Settings = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="difficulty">Difficulty Preference</Label>
-                    <Select 
+                    <Select
                       value={profile.study_preferences.difficulty_preference}
                       onValueChange={(value) => setProfile({
                         ...profile,
@@ -499,8 +548,8 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="bg-gradient-primary text-primary-foreground hover:opacity-90"
                   disabled={isLoading}
                 >
@@ -530,7 +579,7 @@ const Settings = () => {
                 <Switch
                   id="study_reminders"
                   checked={notifications.study_reminders}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setNotifications({ ...notifications, study_reminders: checked })
                   }
                 />
@@ -546,7 +595,7 @@ const Settings = () => {
                 <Switch
                   id="progress_updates"
                   checked={notifications.progress_updates}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setNotifications({ ...notifications, progress_updates: checked })
                   }
                 />
@@ -562,7 +611,7 @@ const Settings = () => {
                 <Switch
                   id="achievement_alerts"
                   checked={notifications.achievement_alerts}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setNotifications({ ...notifications, achievement_alerts: checked })
                   }
                 />
@@ -578,7 +627,7 @@ const Settings = () => {
                 <Switch
                   id="email_notifications"
                   checked={notifications.email_notifications}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setNotifications({ ...notifications, email_notifications: checked })
                   }
                 />
@@ -600,28 +649,29 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {PLATFORMS.map((p: Platform) => (
+              {PLATFORMS.map((p) => (
                 <div key={p.id} className="space-y-2">
-                   <Label htmlFor={`${p.id}_username`}>{p.icon} {p.name}</Label>
-                   <div className="flex gap-2">
-                     <Input
-                       id={`${p.id}_username`}
-                       value={usernames[p.id] || ''}
-                       onChange={(e) => handleUsernameChange(p.id, e.target.value)}
-                       placeholder={`Your ${p.name} username`}
-                     />
-                     <Button
-                       onClick={() => handleSync(p.id)}
-                       disabled={syncLoading[p.id]}
-                       variant="outline"
-                     >
-                       {syncLoading[p.id] ? '...' : 'Sync'}
-                     </Button>
-                   </div>
+                  <Label htmlFor={`${p.id}_username`}>{p.icon} {p.name}</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id={`${p.id}_username`}
+                      value={usernames[p.id] || ''}
+                      onChange={(e) => setUsernames(prev => ({ ...prev, [p.id]: e.target.value }))}
+                      placeholder={`Your ${p.name} username`}
+                    />
+                    <Button
+                      onClick={() => handleSync(p.id)}
+                      disabled={syncLoading[p.id]}
+                      variant="outline"
+                    >
+                      {syncLoading[p.id] ? '...' : 'Sync'}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </CardContent>
           </Card>
+
           <Card className="shadow-medium">
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -630,13 +680,13 @@ const Settings = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => setShowPasswordDialog(true)}>
                 Change Password
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => setShow2FADialog(true)}>
                 Two-Factor Authentication
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={handleDownloadData}>
                 Download Data
               </Button>
             </CardContent>
@@ -652,7 +702,7 @@ const Settings = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Theme</Label>
-                <Select defaultValue="system">
+                <Select value={theme} onValueChange={(value: 'light' | 'dark' | 'system') => setTheme(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -662,6 +712,9 @@ const Settings = () => {
                     <SelectItem value="system">System</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-sm text-muted-foreground">
+                  Choose your preferred theme. System will automatically switch between light and dark based on your device settings.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -679,18 +732,18 @@ const Settings = () => {
                   Signing out will end your current session. You can sign back in anytime.
                 </AlertDescription>
               </Alert>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                 onClick={handleSignOut}
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
               >
                 Delete Account
@@ -699,6 +752,97 @@ const Settings = () => {
           </Card>
         </div>
       </div>
+
+      {/* Password Change Dialog */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Enter your current password and choose a new secure password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Current Password</Label>
+              <Input
+                id="current-password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password (min 8 characters)"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleChangePassword}
+                disabled={passwordLoading}
+                className="flex-1"
+              >
+                {passwordLoading ? 'Updating...' : 'Update Password'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowPasswordDialog(false)}
+                disabled={passwordLoading}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 2FA Dialog */}
+      <Dialog open={show2FADialog} onOpenChange={setShow2FADialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Two-Factor Authentication</DialogTitle>
+            <DialogDescription>
+              Two-factor authentication adds an extra layer of security to your account.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Two-factor authentication is not yet implemented in this demo. In a production environment,
+                this would integrate with an authenticator app or SMS service.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleToggle2FA} className="flex-1">
+                Enable 2FA
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShow2FADialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

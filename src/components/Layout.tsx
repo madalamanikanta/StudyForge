@@ -19,13 +19,13 @@ const Layout = () => {
 
   const navigation = [
     { name: 'Overview', href: '/dashboard', icon: Home },
-    { name: 'Study Plans', href: '/dashboard/plans', icon: BookOpen },
-    { name: 'AI Coach', href: '/dashboard/ai-coach', icon: Brain },
-    { name: 'Peer Rooms', href: '/dashboard/peer-rooms', icon: Users },
-    { name: 'Calendar', href: '/dashboard/calendar', icon: Calendar },
-    { name: 'Progress', href: '/dashboard/progress', icon: TrendingUp },
-    { name: 'Snap Exports', href: '/dashboard/snapshots', icon: Download },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Study Plans', href: '/plans', icon: BookOpen },
+    { name: 'AI Coach', href: '/ai-coach', icon: Brain },
+    { name: 'Peer Rooms', href: '/peer-rooms', icon: Users },
+    { name: 'Calendar', href: '/calendar', icon: Calendar },
+    { name: 'Progress', href: '/progress', icon: TrendingUp },
+    { name: 'Snap Exports', href: '/snapshots', icon: Download },
+    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   const isActive = (href: string) => {
@@ -97,8 +97,7 @@ const Layout = () => {
       </header>
 
       <div className="flex">
-        {location.pathname.startsWith('/dashboard') && (
-          <nav className="w-64 bg-card border-r h-[calc(100vh-81px)] sticky top-[81px] p-6">
+        <nav className="w-64 bg-card border-r h-[calc(100vh-81px)] sticky top-[81px] p-6">
             <div className="space-y-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -115,8 +114,7 @@ const Layout = () => {
                 );
               })}
             </div>
-          </nav>
-        )}
+        </nav>
 
         {/* Main Content */}
         <main className="flex-1 p-6">

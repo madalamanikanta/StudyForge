@@ -66,7 +66,7 @@ const Auth = () => {
         <Card className="shadow-large border-0 bg-card/95 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <img src="/logo.webp" alt="StudyForge Logo" className="w-12 h-12" />
+              <img src="/favicon.svg" alt="StudyForge Logo" className="w-12 h-12" />
             </div>
             <CardTitle className="text-2xl">Welcome to StudyForge</CardTitle>
             <CardDescription>

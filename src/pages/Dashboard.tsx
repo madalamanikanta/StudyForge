@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAIRoadmap } from "@/hooks/useAIRoadmap";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,16 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Brain, Target, Clock, TrendingUp, Calendar, BookOpen, Users, Award, CheckCircle, AlertCircle, Zap, Star, Plus, Sparkles, ChevronRight, Link as LinkIcon, Globe, RefreshCw, Download } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AICoach } from "@/components/AICoach";
-import { QuickActions } from "@/components/QuickActions";
-import CourseCompletionChart from "@/components/CourseCompletionChart";
-import RecentActivityChart from "@/components/RecentActivityChart";
-import SubjectProgress from "@/components/SubjectProgress";
-import Leaderboard from "@/components/Leaderboard";
+import { Brain, Target, Clock, TrendingUp, Calendar, BookOpen, Users, Award, CheckCircle, AlertCircle, Zap, Star, Plus, Sparkles, ChevronRight, Link as LinkIcon, Globe, RefreshCw, Download } from "lucide-react";
 
 interface Import {
   id: string;
@@ -130,7 +124,7 @@ const Dashboard = () => {
     }
 
     const result = await generateRoadmap(roadmapForm);
-    
+
     if (result) {
       toast({
         title: "Success!",
@@ -148,15 +142,15 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Hero Section with Feature Highlights */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent p-8 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl font-bold mb-2">Welcome to StudyForge</h1>
-              <p className="text-indigo-100 text-lg">Your AI-Powered Learning Command Center</p>
+              <p className="text-primary-foreground/80 text-lg">Your AI-Powered Learning Command Center</p>
             </div>
             <div className="hidden md:flex items-center gap-4">
               <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
@@ -200,12 +194,12 @@ const Dashboard = () => {
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
           {/* AI Roadmap */}
-          <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50">
+          <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <Brain className="h-6 w-6 text-indigo-600" />
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Brain className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <CardTitle className="text-xl">AI Study Roadmap</CardTitle>
@@ -214,7 +208,7 @@ const Dashboard = () => {
                 </div>
                 <Dialog open={showRoadmapDialog} onOpenChange={setShowRoadmapDialog}>
                   <DialogTrigger asChild>
-                    <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button>
                       <Sparkles className="h-4 w-4 mr-2" />
                       Generate
                     </Button>
@@ -222,7 +216,7 @@ const Dashboard = () => {
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
-                        <Brain className="h-5 w-5 text-indigo-600" />
+                        <Brain className="h-5 w-5 text-primary" />
                         Create AI Study Roadmap
                       </DialogTitle>
                       <DialogDescription>
@@ -267,7 +261,7 @@ const Dashboard = () => {
                         <Label>Difficulty Level</Label>
                         <Select
                           value={roadmapForm.difficulty_level}
-                          onValueChange={(value: 'beginner' | 'intermediate' | 'advanced') => 
+                          onValueChange={(value: 'beginner' | 'intermediate' | 'advanced') =>
                             setRoadmapForm(prev => ({ ...prev, difficulty_level: value }))
                           }
                         >
@@ -281,10 +275,10 @@ const Dashboard = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button 
-                        onClick={handleGenerateRoadmap} 
+                      <Button
+                        onClick={handleGenerateRoadmap}
                         disabled={roadmapLoading}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700"
+                        className="w-full"
                       >
                         {roadmapLoading ? "Generating..." : "Create Roadmap"}
                       </Button>
@@ -310,7 +304,7 @@ const Dashboard = () => {
                       </p>
                     </div>
                   ))}
-                  <Button className="w-full bg-gradient-primary text-white hover:opacity-90" asChild>
+                  <Button className="w-full" asChild>
                     <a href="/plans">View All Plans</a>
                   </Button>
                 </div>
@@ -318,9 +312,8 @@ const Dashboard = () => {
                 <div className="text-center py-6">
                   <Brain className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground mb-3">No study plans yet</p>
-                  <Button 
+                  <Button
                     onClick={() => setShowRoadmapDialog(true)}
-                    className="bg-gradient-primary text-white hover:opacity-90"
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
                     Create Your First Roadmap
@@ -356,7 +349,7 @@ const Dashboard = () => {
                           <div className="text-sm text-muted-foreground">Problems Solved</div>
                         </div>
                         <div className="text-center p-4 rounded-lg bg-muted">
-                          <div className="text-2xl font-bold text-success">{p.contest_rating}</div>
+                          <div className="text-2xl font-bold text-primary">{p.contest_rating}</div>
                           <div className="text-sm text-muted-foreground">Contest Rating</div>
                         </div>
                         <div className="col-span-2 text-center p-4 rounded-lg bg-muted">
@@ -426,7 +419,7 @@ const Dashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-success" />
+                <TrendingUp className="h-5 w-5 text-primary" />
                 Progress Overview
               </CardTitle>
             </CardHeader>
@@ -437,37 +430,24 @@ const Dashboard = () => {
                   <div className="text-sm text-muted-foreground">Problems Solved</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-success">12</div>
+                  <div className="text-2xl font-bold text-primary">12</div>
                   <div className="text-sm text-muted-foreground">Day Streak</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-warning">4.2h</div>
+                  <div className="text-2xl font-bold text-primary">4.2h</div>
                   <div className="text-sm text-muted-foreground">Avg Daily</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">92%</div>
+                  <div className="text-2xl font-bold text-primary">92%</div>
                   <div className="text-sm text-muted-foreground">Success Rate</div>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <CourseCompletionChart />
-            <RecentActivityChart />
-          </div>
-
-          <SubjectProgress />
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Quick Actions */}
-          <QuickActions />
-          
-          {/* AI Coach */}
-          <AICoach />
-
           {/* Recent Activity */}
           <Card>
             <CardHeader>
@@ -475,11 +455,11 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
-                <CheckCircle className="h-4 w-4 text-success" />
+                <CheckCircle className="h-4 w-4 text-primary" />
                 <span>Completed Binary Tree chapter</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                <Star className="h-4 w-4 text-warning" />
+                <Star className="h-4 w-4 text-primary" />
                 <span>Achieved 90% on algorithms quiz</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
@@ -491,8 +471,6 @@ const Dashboard = () => {
               </Button>
             </CardContent>
           </Card>
-
-          <Leaderboard />
         </div>
       </div>
     </div>

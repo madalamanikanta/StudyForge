@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { PageProvider } from "@/contexts/PageContext";
 import Layout from "@/components/Layout";
+import CyberBackground from "@/components/CyberBackground";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -23,29 +25,32 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/plans" element={<StudyPlans />} />
-              <Route path="/dashboard/ai-coach" element={<AiCoach />} />
-              <Route path="/dashboard/peer-rooms" element={<PeerRooms />} />
-              <Route path="/dashboard/calendar" element={<Calendar />} />
-              <Route path="/dashboard/progress" element={<Progress />} />
-              <Route path="/dashboard/snapshots" element={<Snapshots />} />
-              <Route path="/dashboard/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <PageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <CyberBackground />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/plans" element={<StudyPlans />} />
+                <Route path="/ai-coach" element={<AiCoach />} />
+                <Route path="/peer-rooms" element={<PeerRooms />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/progress" element={<Progress />} />
+                <Route path="/snapshots" element={<Snapshots />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </PageProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
